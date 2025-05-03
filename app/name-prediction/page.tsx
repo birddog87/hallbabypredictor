@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 
 export default function NamePrediction() {
@@ -9,7 +9,7 @@ export default function NamePrediction() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 

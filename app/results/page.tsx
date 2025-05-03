@@ -3,10 +3,31 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+interface NamePredictionItem {
+  id: string | number;
+  name: string;
+  predictor: string;
+  createdAt: string | Date;
+}
+
+interface WeightPredictionItem {
+  id: string | number;
+  weight: number; // Assuming weight is a number
+  predictor: string;
+  createdAt: string | Date;
+}
+
+interface DatePredictionItem {
+  id: string | number;
+  date: string | Date; // Assuming date is string or Date
+  predictor: string;
+  createdAt: string | Date;
+}
+
 export default function Results() {
-  const [nameData, setNameData] = useState([]);
-  const [weightData, setWeightData] = useState([]);
-  const [dateData, setDateData] = useState([]);
+  const [nameData, setNameData] = useState<NamePredictionItem[]>([]);
+  const [weightData, setWeightData] = useState<WeightPredictionItem[]>([]);
+  const [dateData, setDateData] = useState<DatePredictionItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all');
 
@@ -46,7 +67,7 @@ export default function Results() {
   }, []);
 
   // Function to format weight from decimal to pounds/ounces
-  const formatWeight = (weight) => {
+  const formatWeight = (weight: number) => {
     const pounds = Math.floor(weight);
     const ounces = Math.round((weight - pounds) * 16);
     return `${pounds} lb ${ounces} oz`;
@@ -56,8 +77,8 @@ export default function Results() {
   const getMostPopularName = () => {
     if (nameData.length === 0) return 'No predictions yet';
     
-    const nameCounts = {};
-    nameData.forEach(item => {
+    const nameCounts: Record<string, number> = {};
+    nameData.forEach((item: NamePredictionItem) => {
       const name = item.name.trim().toLowerCase();
       nameCounts[name] = (nameCounts[name] || 0) + 1;
     });
@@ -79,7 +100,7 @@ export default function Results() {
   const getAverageWeight = () => {
     if (weightData.length === 0) return 'No predictions yet';
     
-    const totalWeight = weightData.reduce((sum, item) => sum + item.weight, 0);
+    const totalWeight = weightData.reduce((sum: number, item: WeightPredictionItem) => sum + Number(item.weight || 0), 0);
     const avgWeight = totalWeight / weightData.length;
     
     return formatWeight(avgWeight);
@@ -88,10 +109,16 @@ export default function Results() {
   const getMostPredictedDate = () => {
     if (dateData.length === 0) return 'No predictions yet';
     
-    const dateCounts = {};
-    dateData.forEach(item => {
-      const dateStr = new Date(item.date).toISOString().split('T')[0];
-      dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
+    const dateCounts: Record<string, number> = {};
+    dateData.forEach((item: DatePredictionItem) => {
+      if (item.date) {
+          try {
+              const dateStr = new Date(item.date).toISOString().split('T')[0];
+              dateCounts[dateStr] = (dateCounts[dateStr] || 0) + 1;
+          } catch (e) {
+              console.error("Error processing date:", item.date, e);
+          }
+      }
     });
     
     let mostPredictedDate = '';
@@ -136,7 +163,7 @@ export default function Results() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {nameData.map((item) => (
+              {nameData.map((item: NamePredictionItem) => (
                 <tr key={item.id} className="hover:bg-pink-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{item.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.predictor}</td>
@@ -180,9 +207,9 @@ export default function Results() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {weightData.map((item) => (
+              {weightData.map((item: WeightPredictionItem) => (
                 <tr key={item.id} className="hover:bg-purple-50 transition-colors">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{formatWeight(item.weight)}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{formatWeight(Number(item.weight))}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{item.predictor}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {new Date(item.createdAt).toLocaleDateString('en-US', {
@@ -224,7 +251,7 @@ export default function Results() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {dateData.map((item) => (
+              {dateData.map((item: DatePredictionItem) => (
                 <tr key={item.id} className="hover:bg-indigo-50 transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
                     {new Date(item.date).toLocaleDateString('en-US', {
