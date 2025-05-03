@@ -1,0 +1,24 @@
+-- CreateTable
+CREATE TABLE "NamePrediction" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "gender" TEXT NOT NULL,
+    "predictor" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "WeightPrediction" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "weight" REAL NOT NULL,
+    "predictor" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- CreateTable
+CREATE TABLE "BirthDatePrediction" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "date" DATETIME NOT NULL,
+    "predictor" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
