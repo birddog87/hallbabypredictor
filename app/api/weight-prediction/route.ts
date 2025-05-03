@@ -46,18 +46,27 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Fetch all predictions from the list (consider pagination for large lists)
-    // LRANGE 0 -1 fetches the entire list
     const predictionStrings = await kv.lrange(KV_KEY, 0, -1);
+    const predictions: WeightPredictionData[] = []; // Initialize empty array
 
-    // Parse the JSON strings back into objects
-    const predictions: WeightPredictionData[] = predictionStrings.map((str) => JSON.parse(str as string));
-
-    // KV stores lists in insertion order (newest first with LPUSH),
-    // so they are already effectively sorted by createdAt descending.
+    // Iterate and parse safely
+    predictionStrings.forEach((str) => {
+      try {
+        if (typeof str === 'string') {
+          const prediction = JSON.parse(str);
+          // Optional: Add validation here
+          predictions.push(prediction);
+        } else {
+          console.warn(`Skipping non-string item from KV key "${KV_KEY}":`, str);
+        }
+      } catch (parseError) {
+        console.error(`Failed to parse item from KV key "${KV_KEY}". Item:`, str, 'Error:', parseError);
+      }
+    });
 
     return NextResponse.json(predictions);
   } catch (error) {
+    // Catch errors from kv.lrange itself or other unexpected issues
     console.error('Error fetching weight predictions:', error);
     return NextResponse.json(
       { error: 'Error fetching weight predictions' },
