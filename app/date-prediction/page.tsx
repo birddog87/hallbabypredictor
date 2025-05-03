@@ -68,7 +68,7 @@ export default function DatePrediction() {
 
   const minDate = '2025-07-01';
   const maxDate = '2025-09-15';
-  const dueDate = '2025-08-10';
+  const dueDate = '2025-08-16';
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 to-purple-100 py-12">
