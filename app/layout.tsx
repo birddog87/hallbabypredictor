@@ -13,9 +13,49 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Define metadataBase - replace 'YOUR_SITE_URL' with your actual domain
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'; // Example: Use env var or fallback
+
 export const metadata: Metadata = {
-  title: "Weight Prediction",
-  description: "Predict your baby's weight",
+  metadataBase: new URL(siteUrl), // Add this line
+  title: {
+    default: "Baby Predictions!", // Default title
+    template: "%s | Baby Predictions", // Title template for pages
+  },
+  description: "Fun predictions for the upcoming baby Hall!", // Updated description
+  openGraph: {
+    title: "Baby Predictions!",
+    description: "Fun predictions for the upcoming baby Hall!",
+    url: siteUrl,
+    siteName: "Baby Hall Predictions",
+    images: [
+      {
+        url: '/og-image.png', // Path relative to metadataBase
+        width: 1200,
+        height: 630,
+        alt: 'Baby Hall Predictions Banner',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "Baby Predictions!",
+    description: "Fun predictions for the upcoming baby Hall!",
+    // creator: '@yourTwitterHandle', // Optional: Add your Twitter handle
+    images: ['/twitter-image.png'], // Path relative to metadataBase
+  },
+  // Add icons if needed, referencing files in /public
+  icons: {
+    icon: '/favicon.ico', // Example favicon
+    // shortcut: '/shortcut-icon.png',
+    // apple: '/apple-icon.png',
+    // other: {
+    //   rel: 'apple-touch-icon-precomposed',
+    //   url: '/apple-touch-icon-precomposed.png',
+    // },
+  },
 };
 
 export default function RootLayout({
