@@ -46,27 +46,21 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const predictionStrings = await kv.lrange(KV_KEY, 0, -1);
-    const predictions: WeightPredictionData[] = []; // Initialize empty array
+    // kv.lrange likely returns objects directly
+    const predictions = await kv.lrange(KV_KEY, 0, -1);
 
-    // Iterate and parse safely
-    predictionStrings.forEach((str) => {
-      try {
-        if (typeof str === 'string') {
-          const prediction = JSON.parse(str);
-          // Optional: Add validation here
-          predictions.push(prediction);
-        } else {
-          console.warn(`Skipping non-string item from KV key "${KV_KEY}":`, str);
-        }
-      } catch (parseError) {
-        console.error(`Failed to parse item from KV key "${KV_KEY}". Item:`, str, 'Error:', parseError);
-      }
-    });
+    // Optional: Add validation if needed to ensure items match WeightPredictionData
+    const validatedPredictions = predictions.filter(p => 
+        typeof p === 'object' && p !== null && 'id' in p && 'weight' in p && 'predictor' in p && 'createdAt' in p
+    );
 
-    return NextResponse.json(predictions);
+    // Log if any items were filtered out due to invalid structure
+    if (validatedPredictions.length !== predictions.length) {
+        console.warn(`Filtered out ${predictions.length - validatedPredictions.length} invalid items from KV key "${KV_KEY}"`);
+    }
+
+    return NextResponse.json(validatedPredictions);
   } catch (error) {
-    // Catch errors from kv.lrange itself or other unexpected issues
     console.error('Error fetching weight predictions:', error);
     return NextResponse.json(
       { error: 'Error fetching weight predictions' },
