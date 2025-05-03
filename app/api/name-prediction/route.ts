@@ -52,12 +52,30 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // Use KV instead of Prisma
     const predictionStrings = await kv.lrange(KV_KEY, 0, -1);
-    const predictions: NamePredictionData[] = predictionStrings.map((str) => JSON.parse(str as string));
+    const predictions: NamePredictionData[] = []; // Initialize empty array
+
+    // Iterate and parse safely
+    predictionStrings.forEach((str) => {
+      try {
+        // Attempt to parse each string, ensure it's a string first
+        if (typeof str === 'string') { 
+           const prediction = JSON.parse(str);
+           // Optional: Add validation here to ensure prediction matches NamePredictionData structure
+           predictions.push(prediction);
+        } else {
+           // Log if item retrieved is not even a string
+           console.warn(`Skipping non-string item from KV key "${KV_KEY}":`, str);
+        }
+      } catch (parseError) {
+        // Log the specific string that failed to parse and skip it
+        console.error(`Failed to parse item from KV key "${KV_KEY}". Item:`, str, 'Error:', parseError);
+      }
+    });
 
     return NextResponse.json(predictions);
   } catch (error) {
+    // Catch errors from kv.lrange itself or other unexpected issues
     console.error('Error fetching name predictions:', error);
     return NextResponse.json(
       { error: 'Error fetching name predictions' },
