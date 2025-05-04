@@ -48,13 +48,9 @@ export const metadata: Metadata = {
   },
   // Add icons if needed, referencing files in /public
   icons: {
-    icon: '/favicon.ico', // Example favicon
-    // shortcut: '/shortcut-icon.png',
-    // apple: '/apple-icon.png',
-    // other: {
-    //   rel: 'apple-touch-icon-precomposed',
-    //   url: '/apple-touch-icon-precomposed.png',
-    // },
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/apple-touch-icon.png',
   },
 };
 
