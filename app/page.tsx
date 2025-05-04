@@ -1,6 +1,25 @@
+'use client'
+import { useState, useEffect } from 'react'
 import Link from "next/link";
+import Image from 'next/image';
 
 export default function Home() {
+  const dueDate = new Date('2025-08-16')
+  const [daysLeft, setDaysLeft] = useState(() => {
+    const now = new Date()
+    const diff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+    return diff > 0 ? diff : 0
+  })
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const now = new Date()
+      const diff = Math.ceil((dueDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      setDaysLeft(diff > 0 ? diff : 0)
+    }, 1000 * 60 * 60) // update hourly
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-pink-50 to-pink-200">
       <header className="py-6 px-4">
@@ -16,10 +35,15 @@ export default function Home() {
         <div className="bg-white rounded-2xl overflow-hidden shadow-xl mb-16">
           <div className="relative h-40 bg-gradient-to-r from-pink-300 to-pink-500">
             <div className="absolute -bottom-16 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-full shadow-lg">
-              <div className="rounded-full bg-pink-100 p-2">
-                <svg className="w-24 h-24 text-pink-500" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M9.5,8.5 C9.5,6.84315 10.8431,5.5 12.5,5.5 C14.1569,5.5 15.5,6.84315 15.5,8.5 C15.5,10.1569 14.1569,11.5 12.5,11.5 C10.8431,11.5 9.5,10.1569 9.5,8.5 Z M6.5,19 L17.5,19 C17.5,14.8579 15.1421,13 12.5,13 C9.85786,13 6.5,14.8579 6.5,19 Z M3.5,8 C3.5,6.61929 4.61929,5.5 6,5.5 C7.38071,5.5 8.5,6.61929 8.5,8 C8.5,9.38071 7.38071,10.5 6,10.5 C4.61929,10.5 3.5,9.38071 3.5,8 Z M5,19 L4.5,19 C4.5,16.4101 5.21812,14.5 6.5,13.4143 C5.73563,13.1087 4.8968,13 4,13 C2.61286,13 1,13.6687 1,15.5 L1,17.5 C1,18.3284 1.67157,19 2.5,19 L5,19 Z M18.5,8 C18.5,6.61929 19.6193,5.5 21,5.5 C22.3807,5.5 23.5,6.61929 23.5,8 C23.5,9.38071 22.3807,10.5 21,10.5 C19.6193,10.5 18.5,9.38071 18.5,8 Z M17.5,19 L20,19 C20.8284,19 21.5,18.3284 21.5,17.5 L21.5,15.5 C21.5,13.6687 19.8871,13 18.5,13 C17.6032,13 16.7644,13.1087 16,13.4143 C17.2819,14.5 18,16.4101 18,19 L17.5,19 Z"></path>
-                </svg>
+              <div className="rounded-full bg-pink-100 p-2 flex items-center justify-center" style={{ width: 112, height: 112 }}>
+                <Image
+                  src="/images/lastcatbaby.png"
+                  alt="Baby Icon"
+                  width={96}
+                  height={96}
+                  className="rounded-full object-cover"
+                  priority
+                />
               </div>
             </div>
           </div>
@@ -40,7 +64,7 @@ export default function Home() {
                 <svg className="w-6 h-6 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-                <span className="font-medium">Countdown: 108 days</span>
+                <span className="font-medium">{`Countdown: ${daysLeft} days`}</span>
               </div>
             </div>
             
