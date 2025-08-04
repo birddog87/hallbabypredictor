@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { kv } from '@vercel/kv'; // Import Vercel KV
+import { Redis } from '@upstash/redis'; // Import Upstash Redis
 import { v4 as uuidv4 } from 'uuid'; // Import uuid
 
 // Define a type for the prediction data
@@ -11,6 +11,9 @@ interface BirthDatePredictionData {
 }
 
 const KV_KEY = 'birthDatePredictions'; // Unique key for this type
+
+// Initialize Redis client
+const redis = Redis.fromEnv();
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,10 +31,10 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(),
     };
 
-    // Use KV instead of Prisma
-    await kv.lpush(KV_KEY, JSON.stringify(newPrediction));
+    // Use Upstash Redis
+    await redis.lpush(KV_KEY, JSON.stringify(newPrediction));
     // Optional: Trim list
-    // await kv.ltrim(KV_KEY, 0, 499);
+    // await redis.ltrim(KV_KEY, 0, 499);
 
     return NextResponse.json(newPrediction, { status: 201 });
   } catch (error) {
@@ -45,8 +48,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // kv.lrange likely returns objects directly
-    const predictions = await kv.lrange(KV_KEY, 0, -1);
+    // Get data from Redis
+    const predictions = await redis.lrange(KV_KEY, 0, -1);
 
     // Optional: Add validation if needed to ensure items match BirthDatePredictionData
     const validatedPredictions = predictions.filter(p => 

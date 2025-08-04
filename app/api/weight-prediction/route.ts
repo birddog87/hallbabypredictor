@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server';
-import { kv } from '@vercel/kv'; // Import Vercel KV
+import { Redis } from '@upstash/redis'; // Import Upstash Redis
 import { v4 as uuidv4 } from 'uuid'; // Import uuid to generate unique IDs
 
 // Define a type for the prediction data for better type safety
@@ -11,6 +11,9 @@ interface WeightPredictionData {
 }
 
 const KV_KEY = 'weightPredictions'; // Define a key for the KV store list
+
+// Initialize Redis client
+const redis = Redis.fromEnv();
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,11 +31,11 @@ export async function POST(request: NextRequest) {
       createdAt: new Date().toISOString(), // Store creation time
     };
 
-    // Add the new prediction to the beginning of the list in KV
-    await kv.lpush(KV_KEY, JSON.stringify(newPrediction));
+    // Add the new prediction to the beginning of the list in Redis
+    await redis.lpush(KV_KEY, JSON.stringify(newPrediction));
 
     // Optional: Trim the list if it gets too long (e.g., keep last 500)
-    // await kv.ltrim(KV_KEY, 0, 499);
+    // await redis.ltrim(KV_KEY, 0, 499);
 
     return NextResponse.json(newPrediction, { status: 201 });
   } catch (error) {
@@ -46,8 +49,8 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    // kv.lrange likely returns objects directly
-    const predictions = await kv.lrange(KV_KEY, 0, -1);
+    // Get data from Redis
+    const predictions = await redis.lrange(KV_KEY, 0, -1);
 
     // Optional: Add validation if needed to ensure items match WeightPredictionData
     const validatedPredictions = predictions.filter(p => 
